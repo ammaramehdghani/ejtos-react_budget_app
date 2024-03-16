@@ -14,7 +14,6 @@ export const AppReducer = (state, action) => {
             total_budget = total_budget + action.payload.cost;
             action.type = "DONE";
             if(total_budget <= state.budget) {
-                total_budget = 0;
                 state.expenses.map((currentExp)=> {
                     if(currentExp.name === action.payload.name) {
                         currentExp.cost = action.payload.cost + currentExp.cost;
@@ -64,9 +63,20 @@ export const AppReducer = (state, action) => {
             action.type = "DONE";
             state.budget = action.payload;
 
+            const totalExpenses = state.expenses.reduce((total, item) => total + item.cost, 0);
+
+            if (budget < totalExpenses) {
+            alert("You cannot reduce the budget value lower than the total expenses.");
+            return state; // Return the current state without updating the budget
+            } else {
+        // Update the budget if it's greater than or equal to the total expenses
             return {
                 ...state,
-            };
+                budget: budget
+        };
+    }
+
+
         case 'CHG_CURRENCY':
             action.type = "DONE";
             state.currency = action.payload;
@@ -81,7 +91,7 @@ export const AppReducer = (state, action) => {
 
 // 1. Sets the initial state when the app loads
 const initialState = {
-    budget: {},
+    budget: 2000,
     expenses: [
         { id: "Marketing", name: 'Marketing', cost: 50 },
         { id: "Finance", name: 'Finance', cost: 300 },
@@ -106,7 +116,7 @@ export const AppProvider = (props) => {
             const totalExpenses = state.expenses.reduce((total, item) => {
             return (total = total + item.cost);
         }, 0);
-        remaining = state.budget - totalExpenses;
+        remaining = state.budget-totalExpenses;
     }
 
     return (
